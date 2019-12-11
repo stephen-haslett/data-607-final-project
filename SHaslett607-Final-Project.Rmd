@@ -103,7 +103,7 @@ clean_pop_data <- na.omit(nyc_population_refined)
 sapply(clean_pop_data, function(x) sum(is.na(x)))
 
 # Get rid of the NYC Total population row as we don't need it.
-clean_pop_data =clean_pop_data[-1,]
+clean_pop_data = clean_pop_data[-1,]
 
 # Rename the columns.
 colnames(clean_pop_data) <- c('Borough', 'Population')
@@ -122,19 +122,19 @@ head(crimes_per_borough)
 
 #### Bar graph representing crime occurences in each borough.
 ```{r, message=FALSE, warning=FALSE}
-#test <- table(nyc_population$borough)
-#test
-crimes_dataframe <- as.data.frame(crimes_per_borough)
-population_dataframe <- as.data.frame(nyc_population)
-population_dataframe
+crimes_dataframe <- as.data.frame(crimes_per_borough, stringsAsFactors=FALSE)
+population_dataframe <- as.data.frame(clean_pop_data, stringsAsFactors=FALSE)
+
+# Add column names to the crimes_dataframe.
 colnames(crimes_dataframe) <- c('Borough', 'Crimes')
 
-# Convert borough names to title case form, and add borough population data so we can calculate crime rates.
+# Convert borough names to title case form so that we can join on 'Borough'
+# with the population_dataframe.
 crimes_dataframe$Borough <- str_to_title(crimes_dataframe$Borough)
-crimes_dataframe <- merge(crimes_dataframe, population_dataframe,by = c('Borough', 'borough'))
-#crimes_dataframe %>% merge(nyc_population$borough)
-crimes_dataframe
+crimes_population <- join(crimes_dataframe, population_dataframe, by = 'Borough', type = 'right')
+crimes_population$Crimes <- crimes_dataframe$Crimes
 
+crimes_population
 ```
 
 
