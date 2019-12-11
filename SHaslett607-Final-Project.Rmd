@@ -1,0 +1,28 @@
+---
+title: "Property Prices and Crime in NYC"
+author: "Stephen Haslett"
+date: "12/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Objective
+
+For this project, I will investigate the correlation between crime and property prices within NYC's 5 boroughs. The 3 main questions I want to answer are:
+
+1. What is the correlation between crime and property prices in NYC?
+
+2. Do specific types of crime have an affect on property values?
+
+3. As the number of arrests decrease in a borough, do property values increase?
+
+##Data Sources
+
+The 2 main data sources I will use for this project can be found on NYCOpenData (https://opendata.cityofnewyork.us/data/).
+
+I will explore the "NYPD Arrests Data (Historic)" dataset, and will compare this to the "Revised Notice of Property Value (RNOPV)" dataset which contains NYC Department of Finance property evaluation data. Both datasets contain a borough column, so this will be my starting point for correlating the 2 sets of data, and will allow me to start identifying patterns between crime and property prices.
+
+The NYPD Arrests dataset contains information on the types of offenses that were committed prior to the arrest, and so this can be utilized to investigate what affect specific crimes have (if any) on property values. 
