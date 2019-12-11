@@ -20,6 +20,7 @@ library(tidyr)
 library(geosphere)
 library(leaflet)
 library(plyr)
+library(tools)
 ```
 
 
@@ -47,6 +48,7 @@ The _NYPD Arrests Data (Historic)_ csv file is 2.05 GB, so I decided to obtain t
 
 ```{r, message=FALSE, warning=FALSE}
 crime_data <- fromJSON("https://data.cityofnewyork.us/resource/qgea-i56i.json")
+nyc_population <- fromJSON("https://data.cityofnewyork.us/resource/xywu-7bv9.json")
 #revised_property_prices <- fromJSON("https://data.cityofnewyork.us/resource/8vgb-zm6e.json")
 #glimpse(revised_property_prices)
 ```
@@ -96,11 +98,17 @@ sample_n(clean_crime_data, 30)
 ```{r, message=FALSE, warning=FALSE}
 # Count the occurences of a borough name to give us an idea of the crime rate in the borough.
 crimes_per_borough <- table(clean_crime_data$boro_nm)
-crimes_per_borough
+head(crimes_per_borough)
 ```
 
 #### Bar graph representing crime occurences in each borough.
 ```{r, message=FALSE, warning=FALSE}
+crimes_dataframe <- as.data.frame(crimes_per_borough)
+colnames(crimes_dataframe) <- c('Borough', 'Crimes')
+
+# Convert borough names to title case form, and add borough population data so we can calculate crime rates.
+crimes_dataframe$Borough = toTitleCase(crimes_dataframe$Borough)
+crimes_dataframe
 
 ```
 
