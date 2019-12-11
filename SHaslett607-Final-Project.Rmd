@@ -19,6 +19,7 @@ library(tidyverse)
 library(tidyr)
 library(geosphere)
 library(leaflet)
+library(plyr)
 ```
 
 
@@ -47,6 +48,7 @@ The _NYPD Arrests Data (Historic)_ csv file is 2.05 GB, so I decided to obtain t
 ```{r, message=FALSE, warning=FALSE}
 crime_data <- fromJSON("https://data.cityofnewyork.us/resource/qgea-i56i.json")
 #revised_property_prices <- fromJSON("https://data.cityofnewyork.us/resource/8vgb-zm6e.json")
+#glimpse(revised_property_prices)
 ```
 
 ### Cleaning the Data.
@@ -67,7 +69,9 @@ str(crime_data)
 colnames(crime_data)
 ```
 
-We don't need all of the information in the dataset for our analysis, so we take what we need, and leave what we don't.
+
+**We don't need all of the information in the dataset for our analysis, so we take what we need, and leave what we don't.**
+
 ```{r, message=FALSE, warning=FALSE}
 # Extract the columns with the data that we need.
 crime_data_refined <- select(crime_data, rpt_dt, ofns_desc, ofns_desc, law_cat_cd, boro_nm, addr_pct_cd, latitude, longitude, lat_lon)
@@ -78,6 +82,26 @@ clean_crime_data <- na.omit(crime_data_refined)
 sapply(clean_crime_data, function(x) sum(is.na(x)))
 
 summary(clean_crime_data)
+```
+
+#### Look at a sample of the clean data.
+```{r, message=FALSE, warning=FALSE}
+sample_n(clean_crime_data, 30)
+```
+
+
+### Data Analysis
+
+#### Crime Frequency by Borough.
+```{r, message=FALSE, warning=FALSE}
+# Count the occurences of a borough name to give us an idea of the crime rate in the borough.
+crimes_per_borough <- table(clean_crime_data$boro_nm)
+crimes_per_borough
+```
+
+#### Bar graph representing crime occurences in each borough.
+```{r, message=FALSE, warning=FALSE}
+
 ```
 
 
