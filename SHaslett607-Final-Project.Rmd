@@ -56,8 +56,6 @@ The _NYPD Arrests Data (Historic)_ csv file is 2.05 GB, so I decided to obtain t
 ```{r, message=FALSE, warning=FALSE}
 crime_data <- fromJSON("https://data.cityofnewyork.us/resource/qgea-i56i.json")
 nyc_population <- fromJSON("https://data.cityofnewyork.us/resource/xywu-7bv9.json")
-#revised_property_prices <- fromJSON("https://data.cityofnewyork.us/resource/8vgb-zm6e.json")
-#glimpse(revised_property_prices)
 ```
 
 ### Cleaning the Data.
@@ -120,6 +118,7 @@ sample_n(clean_pop_data, 5)
 
 ### Data Analysis
 
+
 #### Crime Frequency by Borough.
 ```{r, message=FALSE, warning=FALSE}
 # Count the occurences of a borough name to give us an idea of the crime rate in the borough.
@@ -154,6 +153,7 @@ crimes_population$CrimeRate <- round(as.numeric(format(crime_rate, scientific = 
 crimes_population
 ```
 
+
 #### Plot a bar graph displaying the crime rates for each borough.
 
 ```{r, message=FALSE, warning=FALSE}
@@ -166,4 +166,32 @@ crime_by_borough_plot <-ggplot(crimes_population, aes(x = Borough, y = CrimeRate
 
 crime_by_borough_plot
 ```
+
+
+
+### New York City crime by category
+```{r, message=FALSE, warning=FALSE}
+cat_by_boro <- select(clean_crime_data, law_cat_cd)
+
+crime_category_table <- table(cat_by_boro$law_cat_cd)
+crime_category_table <- sort(crime_category_table, decreasing = TRUE)
+
+crime_by_category <- as.data.frame(crime_category_table, stringsAsFactors = FALSE)
+colnames(crime_by_category) <- c("Category", "Frequency")
+crime_by_category$Percentage <- crime_by_category$Frequency / sum(crime_by_category$Frequency) * 100
+crime_by_category
+```
+
+
+### Plot a bar graph displaying displaying NYC crime by category.
+```{r, message=FALSE, warning=FALSE}
+crime_by_category_plot <-ggplot(crime_by_category, aes(x = Category, y = Frequency, fill = Category)) + 
+  geom_bar(stat="identity") + 
+        labs(title = 'Crime by Category',
+         x = 'Category',
+         y = 'Frequency')
+  
+crime_by_category_plot
+```
+
 
