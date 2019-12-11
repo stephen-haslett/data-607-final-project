@@ -91,6 +91,25 @@ summary(clean_crime_data)
 sample_n(clean_crime_data, 30)
 ```
 
+### Clean The NYC Population Data
+
+```{r, message=FALSE, warning=FALSE}
+# We only need 2 columns from the table (Borough and Population).
+nyc_population_refined <- select(nyc_population, borough, '_2020')
+
+# Remove NAs from the data.
+sapply(nyc_population_refined, function(x) sum(is.na(x)))
+clean_pop_data <- na.omit(nyc_population_refined)
+sapply(clean_pop_data, function(x) sum(is.na(x)))
+
+# Get rid of the NYC Total population row as we don't need it.
+clean_pop_data =clean_pop_data[-1,]
+
+# Rename the columns.
+colnames(clean_pop_data) <- c('Borough', 'Population')
+
+sample_n(clean_pop_data, 5)
+```
 
 ### Data Analysis
 
@@ -103,11 +122,17 @@ head(crimes_per_borough)
 
 #### Bar graph representing crime occurences in each borough.
 ```{r, message=FALSE, warning=FALSE}
+#test <- table(nyc_population$borough)
+#test
 crimes_dataframe <- as.data.frame(crimes_per_borough)
+population_dataframe <- as.data.frame(nyc_population)
+population_dataframe
 colnames(crimes_dataframe) <- c('Borough', 'Crimes')
 
 # Convert borough names to title case form, and add borough population data so we can calculate crime rates.
-crimes_dataframe$Borough = toTitleCase(crimes_dataframe$Borough)
+crimes_dataframe$Borough <- str_to_title(crimes_dataframe$Borough)
+crimes_dataframe <- merge(crimes_dataframe, population_dataframe,by = c('Borough', 'borough'))
+#crimes_dataframe %>% merge(nyc_population$borough)
 crimes_dataframe
 
 ```
