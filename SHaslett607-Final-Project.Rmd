@@ -120,7 +120,8 @@ crimes_per_borough <- table(clean_crime_data$boro_nm)
 head(crimes_per_borough)
 ```
 
-#### Bar graph representing crime occurences in each borough.
+
+#### Create a new dataframe that contains a population column for each borough.
 ```{r, message=FALSE, warning=FALSE}
 crimes_dataframe <- as.data.frame(crimes_per_borough, stringsAsFactors=FALSE)
 population_dataframe <- as.data.frame(clean_pop_data, stringsAsFactors=FALSE)
@@ -137,4 +138,18 @@ crimes_population$Crimes <- crimes_dataframe$Crimes
 crimes_population
 ```
 
+
+#### Calculate the crime rate for each Borough and add a CrimeRate column to the crimes_population dataframe.
+
+```{r, message=FALSE, warning=FALSE}
+crime_rate <- as.numeric(crimes_population$Crimes) / as.numeric(crimes_population$Population) * 100000
+crimes_population$CrimeRate <- round(as.numeric(format(crime_rate, scientific = FALSE)), 2)
+crimes_population
+```
+
+#### Plot a bar graph displaying the crime rates for each borough.
+
+```{r, message=FALSE, warning=FALSE}
+
+```
 
