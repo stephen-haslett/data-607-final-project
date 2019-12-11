@@ -2,7 +2,12 @@
 title: "Property Prices and Crime in NYC"
 author: "Stephen Haslett"
 date: "12/10/2019"
-output: html_document
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+    toc: yes
+subtitle: "DATA 607 Final Data Project"
 ---
 
 ```{r setup, include=FALSE}
@@ -21,6 +26,8 @@ library(geosphere)
 library(leaflet)
 library(plyr)
 library(tools)
+library(prettydoc)
+library(ggrepel)
 ```
 
 
@@ -88,7 +95,7 @@ summary(clean_crime_data)
 
 #### Look at a sample of the clean data.
 ```{r, message=FALSE, warning=FALSE}
-sample_n(clean_crime_data, 30)
+sample_n(clean_crime_data, 5)
 ```
 
 ### Clean The NYC Population Data
@@ -150,6 +157,13 @@ crimes_population
 #### Plot a bar graph displaying the crime rates for each borough.
 
 ```{r, message=FALSE, warning=FALSE}
+crime_by_borough_plot <-ggplot(crimes_population, aes(x = Borough, y = CrimeRate, fill = Borough)) +
+  geom_bar(stat = 'identity') +
+      labs(title = 'Crime Rates by Borough',
+         x = 'Borough',
+         y = 'Crime Rate')
 
+
+crime_by_borough_plot
 ```
 
