@@ -62,7 +62,7 @@ crime_data <- fromJSON("https://data.cityofnewyork.us/resource/qgea-i56i.json")
 nyc_population <- fromJSON("https://data.cityofnewyork.us/resource/xywu-7bv9.json")
 ```
 
-### Cleaning the Data.
+#### Data Cleansing
 
 
 ### NYPD Arrests Dataset
@@ -89,7 +89,7 @@ colnames(crime_data)
 #### Clean the crime_data dataset so that we can use it for our analysis.
 ```{r, message=FALSE, warning=FALSE}
 # Extract the columns containing the data that we need.
-crime_data_refined <- select(crime_data, rpt_dt, ofns_desc, ofns_desc, law_cat_cd, boro_nm, addr_pct_cd, latitude, longitude, lat_lon)
+crime_data_refined <- select(crime_data, rpt_dt, ofns_desc, pd_desc, ofns_desc, law_cat_cd, boro_nm, addr_pct_cd, latitude, longitude, lat_lon)
 
 # Remove NAs from the data.
 sapply(crime_data_refined, function(x) sum(is.na(x)))
@@ -147,7 +147,7 @@ sample_n(clean_pop_data, 5)
 
 ### Data Analysis
 
-#### Crime Frequency by Borough.
+#### Crime Frequency by Borough
 ```{r, message=FALSE, warning=FALSE}
 # Count the occurences of a borough name to give us an idea of the crime rate in the borough.
 crimes_per_borough <- table(clean_crime_data$boro_nm)
@@ -171,7 +171,9 @@ crimes_dataframe$Borough <- str_to_title(crimes_dataframe$Borough)
 crimes_population <- join(crimes_dataframe, population_dataframe, by = 'Borough', type = 'right')
 crimes_population$Crimes <- crimes_dataframe$Crimes
 
-crimes_population
+kable(crimes_population, "html", escape = F) %>%
+  kable_styling("striped", full_width = T) %>%
+  column_spec(1, bold = T)
 ```
 
 
@@ -181,8 +183,11 @@ crimes_population
 ```{r, message=FALSE, warning=FALSE}
 crime_rate <- as.numeric(crimes_population$Crimes) / as.numeric(crimes_population$Population) * 100000
 crimes_population$CrimeRate <- round(as.numeric(format(crime_rate, scientific = FALSE)), 2)
-crimes_population
+kable(crimes_population, "html", escape = F) %>%
+  kable_styling("striped", full_width = T) %>%
+  column_spec(1, bold = T)
 ```
+
 
 
 #### Plot a bar graph displaying the crime rates for each borough.
@@ -200,11 +205,11 @@ crime_by_borough_plot
 
 
 
-### New York City crime by category.
+### New York City crime by category
 ```{r, message=FALSE, warning=FALSE}
-cat_by_boro <- select(clean_crime_data, law_cat_cd)
+cat_nyc <- select(clean_crime_data, law_cat_cd)
 
-crime_category_table <- table(cat_by_boro$law_cat_cd)
+crime_category_table <- table(cat_nyc$law_cat_cd)
 crime_category_table <- sort(crime_category_table, decreasing = TRUE)
 
 crime_by_category <- as.data.frame(crime_category_table, stringsAsFactors = FALSE)
@@ -214,7 +219,7 @@ crime_by_category
 ```
 
 
-### Plot a bar graph displaying the frquency of certain crimes in NYC.
+### Bar graph displaying arrest frequency by crime category in NYC.
 ```{r, message=FALSE, warning=FALSE}
 crime_by_category_plot <-ggplot(crime_by_category, aes(x = Category, y = Frequency, fill = Category)) + 
   geom_bar(stat="identity") + 
@@ -226,3 +231,37 @@ crime_by_category_plot
 ```
 
 
+### Pie chart displaying arrest frequency by crime category in NYC.
+```{r, message=FALSE, warning=FALSE}
+crime_category_pie_chart <-ggplot(crime_by_category, aes(x = '', y = Frequency, fill = Category)) + 
+  geom_bar(stat ='identity') +
+  coord_polar(theta = 'y') +
+  scale_x_discrete('') +
+  labs(title = 'Crime by Category',
+    x = 'Category',
+    y = 'Frequency')
+
+crime_category_pie_chart
+```
+
+
+Over half of all arrests in NYC are for misdemeanor offences (crimes such as petty theft, disorderly conduct, public intoxication, assault, etc.). Just under half as many felony arrests were made (crimes such as murder, burglary, arson, etc.), and the remainder of arrests were for violations (disorderly conduct, loitering, etc.). The low level of violation arrests is not surprising as these are low level crimes which rarely result in arrest.
+
+These statistics make sense as felonies are less likely crimes, misdemeanors are less serious crimes, but often result in arrest, and violations rarely lead to arrest.
+
+### Crimes Leading to The Least Arrests in NYC
+
+```{r, message=FALSE, warning=FALSE}
+least_crimes <- sort(table(clean_crime_data$pd_desc), decreasing = TRUE)
+least_crimes <- data.frame(least_crimes[least_crimes < 10])
+colnames(least_crimes) <- c('Crime', 'Frequency')
+least_crimes$Percentage <- least_crimes$Frequency / sum(least_crimes$Frequency) * 100
+
+kable(least_crimes, "html", escape = F) %>%
+  kable_styling("striped", full_width = T) %>%
+  column_spec(1, bold = T)
+```
+
+Finally, I wanted to look at the crimes that lead to the least amount of arrrests in NYC. It is interesting that these are all low level crimes. This would suggest that they are crimes that people rarely get arrested for, or that they are so low level that people rarely report these crimes.
+
+##
