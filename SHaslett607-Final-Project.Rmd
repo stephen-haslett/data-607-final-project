@@ -1,5 +1,5 @@
 ---
-title: "Property Prices and Crime in NYC"
+title: "NYC Crime Rates"
 author: "Stephen Haslett"
 date: "12/10/2019"
 output:
@@ -33,25 +33,29 @@ library(ggrepel)
 
 ##Objective
 
-For this project, I will investigate the correlation between crime and property prices within NYC's 5 boroughs. The 3 main questions I want to answer are:
+For this project, I will investigate crime, and crime rates in NYC. The main questions I want to answer are:
 
-1. What is the correlation between crime and property prices in NYC?
+1. Which NYC borough has the highest crime rate?
 
-2. Do specific types of crime have an affect on property values?
+2. Which category of crimes are most common in New York City as a whole?
 
-3. As the number of arrests decrease in a borough, do property values increase?
 
-##Data Sources
+### Data Sources
 
 The 2 main data sources I will use for this project can be found on NYCOpenData (https://opendata.cityofnewyork.us/data/).
 
-I will explore the "NYPD Arrests Data (Historic)" dataset, and will compare this to the "Revised Notice of Property Value (RNOPV)" dataset which contains NYC Department of Finance property evaluation data. Both datasets contain a borough column, so this will be my starting point for correlating the 2 sets of data, and will allow me to start identifying patterns between crime and property prices.
+I will explore the "NYPD Arrests Data (Historic)" dataset, and will pull crime statistics from this set in order to explore crime rates in NYC. I will also use the "New York City Population by Borough, 1950 - 2040" dataset in order to calculate crime rates per New York City borough.
 
-The NYPD Arrests dataset contains information on the types of offenses that were committed prior to the arrest, and so this can be utilized to investigate what affect specific crimes have (if any) on property values. 
+The datasets can be found at the following locations:
 
-#### Fetch the Necessary Data.
+NYPD Arrests Data (Historic) - https://data.cityofnewyork.us/Public-Safety/NYPD-Arrests-Data-Historic-/8h9b-rp9u
 
-The _NYPD Arrests Data (Historic)_ csv file is 2.05 GB, so I decided to obtain the data via NYCOpenData's JSON endpoint to save on memory.
+New York City Population by Borough, 1950 - 2040 - https://data.cityofnewyork.us/City-Government/New-York-City-Population-by-Borough-1950-2040/xywu-7bv9
+
+
+#### Import the Datasets.
+
+The _NYPD Arrests Data (Historic)_ csv file is 2.05 GB, so I decided to obtain the data via NYCOpenData's JSON endpoint to save on memory. The _New York City Population by Borough, 1950 - 2040_ csv file is only 4 KB, but for consistency, I also imported this dataset via the JSON endpoint.
 
 ```{r, message=FALSE, warning=FALSE}
 crime_data <- fromJSON("https://data.cityofnewyork.us/resource/qgea-i56i.json")
@@ -60,7 +64,10 @@ nyc_population <- fromJSON("https://data.cityofnewyork.us/resource/xywu-7bv9.jso
 
 ### Cleaning the Data.
 
-#### View the number of columns and rows in the dataset.
+
+### NYPD Arrests Dataset
+
+#### View the number of columns and rows in the crime_data dataset.
 ```{r, message=FALSE, warning=FALSE}
 dim(crime_data)
 ```
@@ -71,16 +78,17 @@ str(crime_data)
 ```
 
 
-#### Column names.
+#### List the dataset column names so we can see which columns are useful for analysis purposes.
 ```{r, message=FALSE, warning=FALSE}
 colnames(crime_data)
 ```
 
 
-**We don't need all of the information in the dataset for our analysis, so we take what we need, and leave what we don't.**
+**We don't need all of the information in the crime_data dataset for our analysis, so we take what we need, and leave what we don't.**
 
+#### Clean the crime_data dataset so that we can use it for our analysis.
 ```{r, message=FALSE, warning=FALSE}
-# Extract the columns with the data that we need.
+# Extract the columns containing the data that we need.
 crime_data_refined <- select(crime_data, rpt_dt, ofns_desc, ofns_desc, law_cat_cd, boro_nm, addr_pct_cd, latitude, longitude, lat_lon)
 
 # Remove NAs from the data.
@@ -96,7 +104,28 @@ summary(clean_crime_data)
 sample_n(clean_crime_data, 5)
 ```
 
-### Clean The NYC Population Data
+### NYC Population Dataset
+
+#### View the number of columns and rows in the nyc_population dataset.
+```{r, message=FALSE, warning=FALSE}
+dim(nyc_population)
+```
+
+
+#### Look at the data structure, and column names.
+```{r, message=FALSE, warning=FALSE}
+str(nyc_population)
+```
+
+
+#### List the dataset column names.
+
+```{r, message=FALSE, warning=FALSE}
+colnames(nyc_population)
+```
+
+
+#### Clean the nyc_population dataset.
 
 ```{r, message=FALSE, warning=FALSE}
 # We only need 2 columns from the table (Borough and Population).
@@ -118,7 +147,6 @@ sample_n(clean_pop_data, 5)
 
 ### Data Analysis
 
-
 #### Crime Frequency by Borough.
 ```{r, message=FALSE, warning=FALSE}
 # Count the occurences of a borough name to give us an idea of the crime rate in the borough.
@@ -138,6 +166,8 @@ colnames(crimes_dataframe) <- c('Borough', 'Crimes')
 # Convert borough names to title case form so that we can join on 'Borough'
 # with the population_dataframe.
 crimes_dataframe$Borough <- str_to_title(crimes_dataframe$Borough)
+
+# Join the 2 tables together.
 crimes_population <- join(crimes_dataframe, population_dataframe, by = 'Borough', type = 'right')
 crimes_population$Crimes <- crimes_dataframe$Crimes
 
@@ -145,7 +175,8 @@ crimes_population
 ```
 
 
-#### Calculate the crime rate for each Borough and add a CrimeRate column to the crimes_population dataframe.
+
+#### Calculate the crime rate for each Borough, and add a CrimeRate column to the crimes_population dataframe.
 
 ```{r, message=FALSE, warning=FALSE}
 crime_rate <- as.numeric(crimes_population$Crimes) / as.numeric(crimes_population$Population) * 100000
@@ -169,7 +200,7 @@ crime_by_borough_plot
 
 
 
-### New York City crime by category
+### New York City crime by category.
 ```{r, message=FALSE, warning=FALSE}
 cat_by_boro <- select(clean_crime_data, law_cat_cd)
 
@@ -183,7 +214,7 @@ crime_by_category
 ```
 
 
-### Plot a bar graph displaying displaying NYC crime by category.
+### Plot a bar graph displaying the frquency of certain crimes in NYC.
 ```{r, message=FALSE, warning=FALSE}
 crime_by_category_plot <-ggplot(crime_by_category, aes(x = Category, y = Frequency, fill = Category)) + 
   geom_bar(stat="identity") + 
