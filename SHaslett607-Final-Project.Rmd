@@ -62,10 +62,10 @@ crime_data <- fromJSON("https://data.cityofnewyork.us/resource/qgea-i56i.json")
 nyc_population <- fromJSON("https://data.cityofnewyork.us/resource/xywu-7bv9.json")
 ```
 
-#### Data Cleansing
+### Data Cleansing
 
 
-### NYPD Arrests Dataset
+#### NYPD Arrests Dataset
 
 #### View the number of columns and rows in the crime_data dataset.
 ```{r, message=FALSE, warning=FALSE}
@@ -262,6 +262,12 @@ kable(least_crimes, "html", escape = F) %>%
   column_spec(1, bold = T)
 ```
 
-Finally, I wanted to look at the crimes that lead to the least amount of arrrests in NYC. It is interesting that these are all low level crimes. This would suggest that they are crimes that people rarely get arrested for, or that they are so low level that people rarely report these crimes.
+Finally, I wanted to look at the crimes that lead to the least amount of arrests in NYC. It is interesting that these are all low level crimes. This would suggest that they are crimes that people rarely get arrested for, or that they are so low level that people rarely report these crimes.
 
-##
+## Conclusion
+The number of arrests for low level crimes are consistently low throughout this report. This would suggest that such crimes often go unreported, or they are so low level that they do not warrent arrest. The fact that misdemeanors lead to the most arrests is of no surprise. Such crimes are low level, but they lead to arrest. The fact that they are low level probably means people are more likely to commit these crimes with little effort to hide their actions.
+
+When it comes to safe boroughs in New York, it appears that Queens is the safest borough, followed by Staten Island. The most dangerous borough is the Bronx, followed by Manhattan.
+
+I would not have expected Manhattan to have a high crime rate, so given more time, this would have been an interesting point to explore further. Either there are interesting reason for this lurking below the surface, or the data is somehow skewed.
+
